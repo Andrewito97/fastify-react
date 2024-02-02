@@ -1,5 +1,5 @@
 import { MySQLPromiseConnection, MySQLPromisePool } from '@fastify/mysql';
-import { FastifyRequest } from 'fastify';
+import { FastifyBaseLogger } from 'fastify';
 
 export interface IMySQLConnection
   extends MySQLPromiseConnection,
@@ -7,15 +7,15 @@ export interface IMySQLConnection
   /**
    * Execute and log SELECT query and return array of records
    */
-  queryMany: <T>(request: FastifyRequest, sql: string) => Promise<T[]>;
+  queryMany: <T>(sql: string, logger: FastifyBaseLogger) => Promise<T[]>;
 
   /**
    * Execute and log SELECT query and return single record
    */
-  queryOne: <T>(request: FastifyRequest, sql: string) => Promise<T | null>;
+  queryOne: <T>(sql: string, logger: FastifyBaseLogger) => Promise<T | null>;
 
   /**
    * Execute and log INSERT/UPDATE/DELETE query
    */
-  executeMutation: (request: FastifyRequest, sql: string) => Promise<void>;
+  executeMutation: (sql: string, logger: FastifyBaseLogger) => Promise<void>;
 }

@@ -5,7 +5,7 @@ import { RowDataPacket } from 'mysql2/promise';
 import { dbConfig } from './config';
 import { IServer } from '../server/interface';
 import { trimLiteral } from '../helpers';
-import { FastifyRequest } from 'fastify';
+import { FastifyBaseLogger, FastifyRequest } from 'fastify';
 
 export default fastifyPlugin(function (server: IServer, {}, done) {
   server.register(fastifyMysql, dbConfig);
@@ -15,10 +15,10 @@ export default fastifyPlugin(function (server: IServer, {}, done) {
      * Execute and log SELECT query and return array of records
      */
     server!.mysql!.queryMany = async function <T>(
-      request: FastifyRequest,
-      sql: string
+      sql: string,
+      logger: FastifyBaseLogger
     ): Promise<T[]> {
-      request.log.info({ sql: trimLiteral(sql) }, 'select query executed');
+      logger.info({ sql: trimLiteral(sql) }, 'select query executed');
       const data = await server.mysql!.query<RowDataPacket[]>(sql);
       return data![0] as T[];
     };
@@ -27,10 +27,10 @@ export default fastifyPlugin(function (server: IServer, {}, done) {
      * Execute and log SELECT query and return single record
      */
     server!.mysql!.queryOne = async function <T>(
-      request: FastifyRequest,
-      sql: string
+      sql: string,
+      logger: FastifyBaseLogger
     ): Promise<T | null> {
-      request.log.info({ sql: trimLiteral(sql) }, 'select query executed');
+      logger.info({ sql: trimLiteral(sql) }, 'select query executed');
       const data = await server.mysql!.query<RowDataPacket[]>(sql);
       return (data![0][0] as T) || null;
     };
@@ -39,10 +39,10 @@ export default fastifyPlugin(function (server: IServer, {}, done) {
      * Execute and log INSERT/UPDATE/DELETE query
      */
     server!.mysql!.executeMutation = async function (
-      request: FastifyRequest,
-      sql: string
+      sql: string,
+      logger: FastifyBaseLogger
     ): Promise<void> {
-      request.log.info({ sql: trimLiteral(sql) }, 'mutation query executed');
+      logger.info({ sql: trimLiteral(sql) }, 'mutation query executed');
       await server!.mysql!.execute(sql);
     };
   });

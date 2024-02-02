@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { FastifyBaseLogger } from 'fastify';
 import { IServer } from '../../server/interface';
 import { ICreateTag, IGetTag, ITagIdParam, IUpdateTag } from './interface';
 import { TagSchema } from './schema';
@@ -7,10 +7,10 @@ import { NotFound } from '../../errors';
 
 async function validateIfTagExist(
   mysql: IMySQLConnection,
-  request: FastifyRequest,
+  logger: FastifyBaseLogger,
   id: number
 ): Promise<void> {
-  const tag = await mysql.queryOne<{ id: number }>(request, `SELECT id FROM tags WHERE id = ${id}`);
+  const tag = await mysql.queryOne<{ id: number }>(`SELECT id FROM tags WHERE id = ${id}`, logger);
 
   if (!tag) {
     throw new NotFound('Tag is not found');
@@ -19,7 +19,7 @@ async function validateIfTagExist(
 
 export async function tags(server: IServer) {
   server.get('/tags', async function getTags(request) {
-    return server.mysql!.queryMany<IGetTag>(request, `SELECT id, name, color FROM tags;`);
+    return server.mysql!.queryMany<IGetTag>(`SELECT id, name, color FROM tags;`, request.log);
   });
 
   server.post<{ Body: ICreateTag }>(
@@ -27,16 +27,16 @@ export async function tags(server: IServer) {
     { schema: { body: TagSchema } },
     async function createTag(request, response): Promise<IGetTag> {
       await server.mysql!.executeMutation(
-        request,
         `INSERT INTO tags (name, color) 
-         VALUES ('${request.body.name}', '${request.body.color}');`
+         VALUES ('${request.body.name}', '${request.body.color}');`,
+        request.log
       );
 
       const tag = await server.mysql!.queryOne<IGetTag>(
-        request,
         `SELECT id, name, color
          FROM tags
-         WHERE id = LAST_INSERT_ID();`
+         WHERE id = LAST_INSERT_ID();`,
+        request.log
       );
 
       return response.status(201).send(tag);
@@ -47,15 +47,15 @@ export async function tags(server: IServer) {
     '/tags/:id',
     { schema: { body: TagSchema } },
     async function updateNote(request, response): Promise<void> {
-      await validateIfTagExist(server.mysql!, request, +request.params.id);
+      await validateIfTagExist(server.mysql!, request.log, +request.params.id);
 
       await server.mysql!.executeMutation(
-        request,
         `UPDATE tags
          SET 
            name = '${request.body.name}', 
            color = '${request.body.color}'
-         WHERE id = ${request.params.id};`
+         WHERE id = ${request.params.id};`,
+        request.log
       );
 
       response.status(204);
@@ -65,18 +65,18 @@ export async function tags(server: IServer) {
   server.delete<{ Params: ITagIdParam }>(
     '/tags/:id',
     async function deleteNote(request, response): Promise<void> {
-      await validateIfTagExist(server.mysql!, request, +request.params.id);
+      await validateIfTagExist(server.mysql!, request.log, +request.params.id);
 
       await server.mysql!.executeMutation(
-        request,
         `DELETE FROM notes_tags
-         WHERE tag_id = ${request.params.id};`
+         WHERE tag_id = ${request.params.id};`,
+        request.log
       );
 
       await server.mysql!.executeMutation(
-        request,
         `DELETE FROM tags
-         WHERE id = ${request.params.id};`
+         WHERE id = ${request.params.id};`,
+        request.log
       );
 
       response.status(204);

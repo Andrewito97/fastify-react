@@ -1,19 +1,18 @@
-import { FastifyRequest } from 'fastify';
+import { FastifyBaseLogger } from 'fastify';
 import { IMySQLConnection } from '../../database/interface';
 import { IServer } from '../../server/interface';
 import { IAssignTags, ICreateNote, IGetNote, INoteIdParam, IUpdateNote } from './interface';
 import { NotFound } from '../../errors';
 import { NoteSchema, NoteTagsSchema } from './schema';
-import { IGetTag } from '../tags/interface';
 
 async function validateIfNoteExist(
   mysql: IMySQLConnection,
-  request: FastifyRequest,
+  logger: FastifyBaseLogger,
   id: number
 ): Promise<void> {
   const note = await mysql.queryOne<{ id: number }>(
-    request,
-    `SELECT id FROM notes WHERE id = ${id}`
+    `SELECT id FROM notes WHERE id = ${id}`,
+    logger
   );
 
   if (!note) {
@@ -27,7 +26,6 @@ export async function notes(server: IServer): Promise<void> {
   > {
     const { tag } = request.query;
     return server.mysql!.queryMany<IGetNote>(
-      request,
       `SELECT
          notes.id,
          notes.title,
@@ -51,7 +49,8 @@ export async function notes(server: IServer): Promise<void> {
        LEFT JOIN notes_tags AS nt ON notes.id = nt.note_id
        LEFT JOIN tags ON tags.id = nt.tag_id
        GROUP BY notes.id, nt.note_id
-       ${tag ? `HAVING tags ->> '$[*].name' LIKE '%${tag}%'` : ''};`
+       ${tag ? `HAVING tags ->> '$[*].name' LIKE '%${tag}%'` : ''};`,
+      request.log
     );
   });
 
@@ -60,13 +59,12 @@ export async function notes(server: IServer): Promise<void> {
     { schema: { body: NoteSchema } },
     async function createNote(request, response): Promise<IGetNote | null> {
       await server.mysql!.executeMutation(
-        request,
         `INSERT INTO notes(title, description)
-         VALUES ('${request.body.title}', '${request.body.description}');`
+         VALUES ('${request.body.title}', '${request.body.description}');`,
+        request.log
       );
 
       const note = await server.mysql!.queryOne<IGetNote>(
-        request,
         `SELECT
            id,
            title,
@@ -75,7 +73,8 @@ export async function notes(server: IServer): Promise<void> {
            updated_at AS "updatedAt",
            JSON_ARRAY() AS "tags"
          FROM notes
-         WHERE id = LAST_INSERT_ID();`
+         WHERE id = LAST_INSERT_ID();`,
+        request.log
       );
 
       return response.status(201).send(note);
@@ -86,7 +85,6 @@ export async function notes(server: IServer): Promise<void> {
     '/notes/:id',
     async function getNote(request): Promise<IGetNote | null> {
       return server.mysql!.queryOne<IGetNote>(
-        request,
         `SELECT
            id,
            title,
@@ -94,8 +92,9 @@ export async function notes(server: IServer): Promise<void> {
            created_at AS "createdAt",
            updated_at AS "updatedAt"
            FROM notes
-         WHERE id = ${request.params.id};
-      `
+         WHERE id = ${request.params.id};,
+       `,
+        request.log
       );
     }
   );
@@ -104,15 +103,15 @@ export async function notes(server: IServer): Promise<void> {
     '/notes/:id',
     { schema: { body: NoteSchema } },
     async function updateNote(request, response): Promise<void> {
-      await validateIfNoteExist(server.mysql!, request, +request.params.id);
+      await validateIfNoteExist(server.mysql!, request.log, +request.params.id);
 
       await server.mysql!.executeMutation(
-        request,
         `UPDATE notes
          SET 
            title = '${request.body.title}', 
            description = '${request.body.description}'
-         WHERE id = ${request.params.id};`
+         WHERE id = ${request.params.id};`,
+        request.log
       );
 
       response.status(204);
@@ -122,17 +121,17 @@ export async function notes(server: IServer): Promise<void> {
   server.delete<{ Params: INoteIdParam }>(
     '/notes/:id',
     async function deleteNote(request, response): Promise<void> {
-      await validateIfNoteExist(server.mysql!, request, +request.params.id);
+      await validateIfNoteExist(server.mysql!, request.log, +request.params.id);
 
       await server.mysql!.executeMutation(
-        request,
         `DELETE FROM notes_tags
-         WHERE note_id = ${request.params.id};`
+         WHERE note_id = ${request.params.id};`,
+        request.log
       );
       await server.mysql!.executeMutation(
-        request,
         `DELETE FROM notes
-         WHERE id = ${request.params.id};`
+         WHERE id = ${request.params.id};`,
+        request.log
       );
 
       response.status(204);
@@ -147,16 +146,16 @@ export async function notes(server: IServer): Promise<void> {
       const values = request.body.tagIds.map((tagId) => `('${noteId}', '${tagId}')`).join();
 
       await server.mysql!.executeMutation(
-        request,
         `DELETE FROM notes_tags
-         WHERE note_id = ${noteId};`
+         WHERE note_id = ${noteId};`,
+        request.log
       );
 
       if (values.length) {
         await server.mysql!.executeMutation(
-          request,
           `INSERT INTO notes_tags(note_id, tag_id)
-           VALUES ${values};`
+           VALUES ${values};`,
+          request.log
         );
       }
 
