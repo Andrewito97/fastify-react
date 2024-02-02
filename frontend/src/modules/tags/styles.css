@@ -1,0 +1,73 @@
+/* Tags list */
+.tags-list {
+  display: flex;
+  flex-direction: column;
+  min-width: 20em;
+  margin-bottom: 1.2em;
+}
+
+.tags-list-label {
+  margin-bottom: 1vw;
+}
+
+.tags-action-buttons-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tags-action-button {
+  align-self: center;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+}
+
+.tags-action-button-icon {
+  display: block;
+  font-size: 1.6em;
+}
+
+.tags-action-button-icon:hover {
+  scale: 1.5;
+}
+
+.tags-action-button-right {
+  margin-left: 1em;
+}
+
+/* Tag */
+.tag {
+  display: flex;
+  height: 24px;
+}
+
+.tag-label {
+  border-radius: 15px;
+  width: 90%;
+  padding: 0 7px;
+}
+
+.tag-name-input {
+  border-radius: 15px;
+  width: 90%;
+  font-family: cursive;
+  font-size: 1em;
+  padding: 0 0 2px 7px;
+  border: none;
+  outline: 0;
+}
+
+.tag-checkbox {
+  min-width: 1.3em;
+}
+
+.tag-color-select-container {
+  margin: auto 3px;
+}
+
+.tag-delete-button-icon {
+  display: block;
+  font-size: 1.1em;
+  scale: 1.5;
+  color: red;
+}

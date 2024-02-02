@@ -1,0 +1,147 @@
+/* Notes List */
+.notes-list-container {
+  border: 1px solid gainsboro;
+  background-color: #fcffdc;
+  box-shadow: 2px 2px 5px gainsboro;
+}
+
+.notes-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  padding: 0 3vw 3vw 3vw;
+}
+
+.notes-list-header {
+  text-align: center;
+}
+
+.note-list-actions-container {
+  margin: 0 4vw 0 4vw;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Note */
+.note-container {
+  display: flex;
+  flex-direction: column;
+  width: 25%;
+  height: fit-content;
+  padding: 1vw;
+  margin: 1vw;
+  border: 1px solid gainsboro;
+  background-color: #fcffa8;
+  box-shadow: 2px 2px 5px gainsboro;
+}
+.note-container:hover {
+  box-shadow: none;
+}
+
+.note-title {
+  height: 35%;
+}
+
+.note-title-input {
+  margin-top: 0.83em;
+  margin-bottom: 0.83em;
+  padding: 0;
+  border: none;
+  outline: 0;
+  background-color: transparent;
+  font-family: cursive;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.note-description-input {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding: 0;
+  border: none;
+  outline: 0;
+  background-color: transparent;
+  font-family: cursive;
+  font-size: 1em;
+  resize: none;
+  overflow: hidden;
+}
+
+.note-description {
+  height: 60%;
+}
+
+.note-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 1.3vw;
+}
+
+.note-tag {
+  border-radius: 15px;
+  width: fit-content;
+  padding: 0 7px 0 7px;
+  margin: 0.5vw;
+}
+
+.note-tag:hover {
+  box-shadow: 2px 2px 5px gray;
+  cursor: pointer;
+}
+
+.note-actions-container {
+  display: flex;
+  justify-content: end;
+}
+
+.note-action-button {
+  align-self: center;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  margin-right: 5px;
+}
+
+.note-action-button-icon {
+  display: block;
+  font-size: 2em;
+}
+
+.note-action-button-icon:hover {
+  scale: 1.3;
+}
+
+.red {
+  color: red;
+}
+
+.green {
+  color: #14e814;
+}
+
+.blue {
+  color: #00a8e7;
+}
+
+/* Note Filter*/
+.note-filter-container {
+  display: flex;
+}
+
+.note-filter {
+  border-radius: 15px;
+  width: fit-content;
+  padding: 0 7px 0 7px;
+}
+
+.note-remove-filter-button {
+  align-self: center;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+}
+
+.note-remove-filter-button-icon {
+  display: block;
+  scale: 1.25;
+}

@@ -1,0 +1,25 @@
+{
+  "name": "fastify",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "ts-node src/server",
+    "migration:run": "ts-node src/database/cli --run-migrations",
+    "migration:rollback": "ts-node src/database/cli --rollback-migrations",
+    "seed:run": "ts-node src/database/cli --run-seeds",
+    "seed:rollback": "ts-node src/database/cli --rollback-seeds"
+  },
+  "author": "Andrewito97",
+  "license": "MIT",
+  "dependencies": {
+    "@fastify/cors": "^8.4.1",
+    "@fastify/mysql": "^4.1.0",
+    "fastify": "^4.24.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.9",
+    "fastify-plugin": "^4.5.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
